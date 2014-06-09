@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/test">
+  <process id="wf1" name="Workflow 1" isExecutable="true">
+    <serviceTask id="create_folders" name="Create folders" activiti:class="org.alfresco.repo.workflow.activiti.script.AlfrescoScriptDelegate">
+      <extensionElements>
+        <activiti:field name="script">
+          <activiti:string><![CDATA[execution.setVariable('country', 'en'));]]></activiti:string>
+        </activiti:field>
+        <activiti:field name="runAs">
+          <activiti:string><![CDATA[admin]]></activiti:string>
+        </activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <userTask id="fill_data" name="Fill opportunity data" activiti:assignee="${initiator.properties.userName}" activiti:formKey="wf1:fill_data"></userTask>
+    <sequenceFlow id="flow4" sourceRef="create_folders" targetRef="fill_data"></sequenceFlow>
+    <userTask id="approve" name="Approve opportunity" activiti:candidateGroups="ALFRESCO_ADMINISTRATORS" activiti:formKey="wf1:approve"></userTask>
+    <sequenceFlow id="flow5" sourceRef="fill_data" targetRef="approve"></sequenceFlow>
+    <exclusiveGateway id="approve_gw" name="Approve?" default="yes_approve"></exclusiveGateway>
+    <sequenceFlow id="flow6" sourceRef="approve" targetRef="approve_gw"></sequenceFlow>
+    <userTask id="approve_legal" name="Legal approve opportunity" activiti:candidateGroups="ALFRESCO_ADMINISTRATORS" activiti:formKey="wf1:approve_legal"></userTask>
+    <sequenceFlow id="yes_approve" name="yes" sourceRef="approve_gw" targetRef="approve_legal"></sequenceFlow>
+    <exclusiveGateway id="legal_approve_gw" name="Legal Approve" default="no_legal_approve"></exclusiveGateway>
+    <sequenceFlow id="flow8" sourceRef="approve_legal" targetRef="legal_approve_gw"></sequenceFlow>
+    <sequenceFlow id="no_approve" name="no" sourceRef="approve_gw" targetRef="fill_data"></sequenceFlow>
+    <userTask id="rework_agreement" name="Rework agreement" activiti:candidateGroups="ALFRESCO_ADMINISTRATORS" activiti:formKey="wf1:rework"></userTask>
+    <sequenceFlow id="no_legal_approve" name="no" sourceRef="legal_approve_gw" targetRef="rework_agreement"></sequenceFlow>
+    <sequenceFlow id="flow11" sourceRef="rework_agreement" targetRef="approve_legal"></sequenceFlow>
+    <userTask id="fill_legal_data" name="Fill legal data" activiti:candidateGroups="ALFRESCO_ADMINISTRATORS" activiti:formKey="wf1:fill_legal_data"></userTask>
+    <userTask id="approve_legal_manager" name="Approve legal manager" activiti:candidateGroups="ALFRESCO_ADMINISTRATORS" activiti:formKey="wf1:approve_legal_data"></userTask>
+    <sequenceFlow id="flow13" sourceRef="fill_legal_data" targetRef="approve_legal_manager"></sequenceFlow>
+    <sequenceFlow id="yes_legal_approve" name="yes" sourceRef="legal_approve_gw" targetRef="fill_legal_data"></sequenceFlow>
+    <exclusiveGateway id="approve_legal_manager_gw" name="Legal Manager Approve?" default="no_approve_legal_manager"></exclusiveGateway>
+    <sequenceFlow id="flow14" sourceRef="approve_legal_manager" targetRef="approve_legal_manager_gw"></sequenceFlow>
+    <userTask id="ceo_approve" name="CEO Approve" activiti:candidateGroups="ALFRESCO_ADMINISTRATORS" activiti:formKey="wf1:ceo_approve"></userTask>
+    <sequenceFlow id="yes_approve_legal_manager" name="yes" sourceRef="approve_legal_manager_gw" targetRef="ceo_approve"></sequenceFlow>
+    <userTask id="decide_rework" name="Decide rework" activiti:candidateGroups="ALFRESCO_ADMINISTRATORS" activiti:formKey="wf1:decide_rework"></userTask>
+    <sequenceFlow id="no_approve_legal_manager" name="no" sourceRef="approve_legal_manager_gw" targetRef="decide_rework"></sequenceFlow>
+    <endEvent id="aborted" name="Abort"></endEvent>
+    <exclusiveGateway id="decice_rework_gw" name="Rework?" default="yes_rework"></exclusiveGateway>
+    <sequenceFlow id="flow15" sourceRef="decide_rework" targetRef="decice_rework_gw"></sequenceFlow>
+    <sequenceFlow id="yes_rework" name="yes" sourceRef="decice_rework_gw" targetRef="fill_data"></sequenceFlow>
+    <sequenceFlow id="no_rework" name="no" sourceRef="decice_rework_gw" targetRef="aborted"></sequenceFlow>
+    <exclusiveGateway id="ceo_approve_gw" name="CEO Approve?" default="no_ceo_approve"></exclusiveGateway>
+    <sequenceFlow id="flow16" sourceRef="ceo_approve" targetRef="ceo_approve_gw"></sequenceFlow>
+    <sequenceFlow id="no_ceo_approve" name="no" sourceRef="ceo_approve_gw" targetRef="decide_rework"></sequenceFlow>
+    <userTask id="upload_signed_document" name="Upload signed document" activiti:candidateGroups="ALFRESCO_ADMINISTRATORS" activiti:formKey="wf1:upload_document"></userTask>
+    <sequenceFlow id="yes_ceo_approve" name="yes" sourceRef="ceo_approve_gw" targetRef="upload_signed_document"></sequenceFlow>
+    <endEvent id="accepted" name="Accepted"></endEvent>
+    <sequenceFlow id="flow18" sourceRef="upload_signed_document" targetRef="accepted"></sequenceFlow>
+    <textAnnotation id="text_aborted">
+      <text>Aborted</text>
+    </textAnnotation>
+    <textAnnotation id="textannotation1">
+      <text>Accepted</text>
+    </textAnnotation>
+    <association id="association2" sourceRef="textannotation1" targetRef="accepted"></association>
+    <association id="association3" sourceRef="text_aborted" targetRef="aborted"></association>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_wf1">
+    <bpmndi:BPMNPlane bpmnElement="wf1" id="BPMNPlane_wf1">
+      <bpmndi:BPMNShape bpmnElement="create_folders" id="BPMNShape_create_folders">
+        <omgdc:Bounds height="55.0" width="105.0" x="280.0" y="110.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="fill_data" id="BPMNShape_fill_data">
+        <omgdc:Bounds height="55.0" width="105.0" x="428.0" y="110.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="approve" id="BPMNShape_approve">
+        <omgdc:Bounds height="55.0" width="105.0" x="590.0" y="110.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="approve_gw" id="BPMNShape_approve_gw">
+        <omgdc:Bounds height="40.0" width="40.0" x="740.0" y="118.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="approve_legal" id="BPMNShape_approve_legal">
+        <omgdc:Bounds height="55.0" width="105.0" x="825.0" y="111.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="legal_approve_gw" id="BPMNShape_legal_approve_gw">
+        <omgdc:Bounds height="40.0" width="40.0" x="975.0" y="119.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="rework_agreement" id="BPMNShape_rework_agreement">
+        <omgdc:Bounds height="55.0" width="105.0" x="1060.0" y="112.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="fill_legal_data" id="BPMNShape_fill_legal_data">
+        <omgdc:Bounds height="55.0" width="105.0" x="943.0" y="221.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="approve_legal_manager" id="BPMNShape_approve_legal_manager">
+        <omgdc:Bounds height="55.0" width="105.0" x="770.0" y="221.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="approve_legal_manager_gw" id="BPMNShape_approve_legal_manager_gw">
+        <omgdc:Bounds height="40.0" width="40.0" x="686.0" y="228.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="ceo_approve" id="BPMNShape_ceo_approve">
+        <omgdc:Bounds height="55.0" width="105.0" x="654.0" y="330.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="decide_rework" id="BPMNShape_decide_rework">
+        <omgdc:Bounds height="55.0" width="105.0" x="530.0" y="221.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="aborted" id="BPMNShape_aborted">
+        <omgdc:Bounds height="35.0" width="35.0" x="463.0" y="350.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="decice_rework_gw" id="BPMNShape_decice_rework_gw">
+        <omgdc:Bounds height="40.0" width="40.0" x="460.0" y="228.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="ceo_approve_gw" id="BPMNShape_ceo_approve_gw">
+        <omgdc:Bounds height="40.0" width="40.0" x="562.0" y="337.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="upload_signed_document" id="BPMNShape_upload_signed_document">
+        <omgdc:Bounds height="55.0" width="105.0" x="530.0" y="450.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="accepted" id="BPMNShape_accepted">
+        <omgdc:Bounds height="35.0" width="35.0" x="800.0" y="460.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="text_aborted" id="BPMNShape_text_aborted">
+        <omgdc:Bounds height="50.0" width="100.0" x="347.0" y="343.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="textannotation1" id="BPMNShape_textannotation1">
+        <omgdc:Bounds height="50.0" width="100.0" x="874.0" y="453.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="flow4" id="BPMNEdge_flow4">
+        <omgdi:waypoint x="385.0" y="137.0"></omgdi:waypoint>
+        <omgdi:waypoint x="428.0" y="137.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow5" id="BPMNEdge_flow5">
+        <omgdi:waypoint x="533.0" y="137.0"></omgdi:waypoint>
+        <omgdi:waypoint x="590.0" y="137.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow6" id="BPMNEdge_flow6">
+        <omgdi:waypoint x="695.0" y="137.0"></omgdi:waypoint>
+        <omgdi:waypoint x="740.0" y="138.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="yes_approve" id="BPMNEdge_yes_approve">
+        <omgdi:waypoint x="780.0" y="138.0"></omgdi:waypoint>
+        <omgdi:waypoint x="825.0" y="138.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="12.0" width="18.0" x="790.0" y="138.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow8" id="BPMNEdge_flow8">
+        <omgdi:waypoint x="930.0" y="138.0"></omgdi:waypoint>
+        <omgdi:waypoint x="975.0" y="139.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="no_approve" id="BPMNEdge_no_approve">
+        <omgdi:waypoint x="760.0" y="118.0"></omgdi:waypoint>
+        <omgdi:waypoint x="759.0" y="62.0"></omgdi:waypoint>
+        <omgdi:waypoint x="480.0" y="62.0"></omgdi:waypoint>
+        <omgdi:waypoint x="480.0" y="110.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="12.0" width="12.0" x="761.0" y="100.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="no_legal_approve" id="BPMNEdge_no_legal_approve">
+        <omgdi:waypoint x="1015.0" y="139.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1060.0" y="139.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="12.0" width="12.0" x="1025.0" y="139.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow11" id="BPMNEdge_flow11">
+        <omgdi:waypoint x="1112.0" y="112.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1112.0" y="55.0"></omgdi:waypoint>
+        <omgdi:waypoint x="877.0" y="55.0"></omgdi:waypoint>
+        <omgdi:waypoint x="877.0" y="111.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow13" id="BPMNEdge_flow13">
+        <omgdi:waypoint x="943.0" y="248.0"></omgdi:waypoint>
+        <omgdi:waypoint x="875.0" y="248.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="yes_legal_approve" id="BPMNEdge_yes_legal_approve">
+        <omgdi:waypoint x="995.0" y="159.0"></omgdi:waypoint>
+        <omgdi:waypoint x="995.0" y="221.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="12.0" width="18.0" x="1005.0" y="159.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow14" id="BPMNEdge_flow14">
+        <omgdi:waypoint x="770.0" y="248.0"></omgdi:waypoint>
+        <omgdi:waypoint x="726.0" y="248.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="yes_approve_legal_manager" id="BPMNEdge_yes_approve_legal_manager">
+        <omgdi:waypoint x="706.0" y="268.0"></omgdi:waypoint>
+        <omgdi:waypoint x="706.0" y="330.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="12.0" width="18.0" x="716.0" y="268.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="no_approve_legal_manager" id="BPMNEdge_no_approve_legal_manager">
+        <omgdi:waypoint x="686.0" y="248.0"></omgdi:waypoint>
+        <omgdi:waypoint x="635.0" y="248.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="12.0" width="12.0" x="658.0" y="236.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow15" id="BPMNEdge_flow15">
+        <omgdi:waypoint x="530.0" y="248.0"></omgdi:waypoint>
+        <omgdi:waypoint x="500.0" y="248.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="yes_rework" id="BPMNEdge_yes_rework">
+        <omgdi:waypoint x="480.0" y="228.0"></omgdi:waypoint>
+        <omgdi:waypoint x="480.0" y="165.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="12.0" width="18.0" x="456.0" y="201.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="no_rework" id="BPMNEdge_no_rework">
+        <omgdi:waypoint x="480.0" y="268.0"></omgdi:waypoint>
+        <omgdi:waypoint x="480.0" y="350.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="12.0" width="12.0" x="456.0" y="299.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow16" id="BPMNEdge_flow16">
+        <omgdi:waypoint x="654.0" y="357.0"></omgdi:waypoint>
+        <omgdi:waypoint x="602.0" y="357.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="no_ceo_approve" id="BPMNEdge_no_ceo_approve">
+        <omgdi:waypoint x="582.0" y="337.0"></omgdi:waypoint>
+        <omgdi:waypoint x="582.0" y="276.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="12.0" width="12.0" x="562.0" y="312.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="yes_ceo_approve" id="BPMNEdge_yes_ceo_approve">
+        <omgdi:waypoint x="582.0" y="377.0"></omgdi:waypoint>
+        <omgdi:waypoint x="582.0" y="450.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="12.0" width="18.0" x="562.0" y="399.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow18" id="BPMNEdge_flow18">
+        <omgdi:waypoint x="635.0" y="477.0"></omgdi:waypoint>
+        <omgdi:waypoint x="800.0" y="477.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="association2" id="BPMNEdge_association2">
+        <omgdi:waypoint x="874.0" y="478.0"></omgdi:waypoint>
+        <omgdi:waypoint x="835.0" y="477.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="association3" id="BPMNEdge_association3">
+        <omgdi:waypoint x="447.0" y="368.0"></omgdi:waypoint>
+        <omgdi:waypoint x="463.0" y="367.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>
