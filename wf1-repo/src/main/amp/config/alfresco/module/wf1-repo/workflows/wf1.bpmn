@@ -4,7 +4,8 @@
     <serviceTask id="create_folders" name="Create folders" activiti:class="org.alfresco.repo.workflow.activiti.script.AlfrescoScriptDelegate">
       <extensionElements>
         <activiti:field name="script">
-          <activiti:string><![CDATA[execution.setVariable('country', 'en'));]]></activiti:string>
+          <activiti:string><![CDATA[execution.setVariable('country', 'en');
+logger.log("Creating folders...");]]></activiti:string>
         </activiti:field>
         <activiti:field name="runAs">
           <activiti:string><![CDATA[admin]]></activiti:string>
