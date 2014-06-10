@@ -1,0 +1,17 @@
+<alfresco-config>
+    <config evaluator="string-compare" condition="activiti$wf1">
+      <forms>
+         <form>
+            <field-visibility>
+               <show id="wf1:country" />
+               <show id="wf1:opportunityName" />
+            </field-visibility>
+            <appearance>
+               <set id="" appearance="title" label-id="workflow.set.general" />
+               <field id="wf1:country" />
+               <field id="wf1:opportunityName" />
+            </appearance>
+         </form>
+      </forms>
+    </config>
+</alfresco-config>
