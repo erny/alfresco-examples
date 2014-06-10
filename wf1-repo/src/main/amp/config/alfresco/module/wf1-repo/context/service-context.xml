@@ -29,6 +29,11 @@
 	            </props>
 	        </list>
 	    </property>
+        <property name="models">
+            <list>
+              <value>alfresco/module/${project.artifactId}/model/wf1WorkflowModel.xml</value>                
+            </list>
+        </property>
 	</bean>
-
+  
 </beans>

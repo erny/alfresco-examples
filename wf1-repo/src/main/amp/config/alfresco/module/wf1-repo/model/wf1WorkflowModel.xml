@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Definition of new Model -->
+<model name="wf1:workflowmodel"
+    xmlns="http://www.alfresco.org/model/dictionary/1.0">
+
+    <!-- Optional meta-data about the model -->
+    <description>wf1 sample model</description>
+    <author>Ernesto Revilla</author>
+    <version>1.0</version>
+
+    <!-- Imports are required to allow references to definitions in other models -->
+    <imports>
+        <import uri="http://www.alfresco.org/model/dictionary/1.0"
+            prefix="d" />
+        <import uri="http://www.alfresco.org/model/bpm/1.0"
+            prefix="bpm" />
+    </imports>
+
+    <!-- Introduction of new namespaces defined by this model -->
+    <namespaces>
+        <namespace uri="http://www.erny.org/model/wf1/1.0"
+            prefix="wf1" />
+    </namespaces>
+
+    <types>
+        <!--  Start form -->
+        <type name="wf1:start">
+            <parent>bpm:startTask</parent>
+            <properties>
+                <property name="wf1:country">
+                    <type>d:text</type>
+                    <mandatory>true</mandatory>
+                    <multiple>false</multiple>
+                </property>
+                <property name="wf1:initiator">
+                    <type>d:text</type>
+                    <mandatory>true</mandatory>
+                    <multiple>false</multiple>
+                </property>
+                <property name="wf1:opportunityName">
+                    <type>d:text</type>
+                    <mandatory>true</mandatory>
+                    <multiple>false</multiple>
+                </property>
+            </properties>
+        </type>        
+
+        <!-- Opportunity form -->
+        <type name="wf1:fill_data">
+            <parent>bpm:workflowTask</parent>
+            <properties>
+            </properties>
+        </type>        
+
+        <!-- Approve form -->
+        <type name="wf1:approve">
+            <parent>bpm:workflowTask</parent>
+            <properties>
+            </properties>
+        </type>        
+
+        <!-- Legal approve form -->
+        <type name="wf1:approve_legal">
+            <parent>bpm:workflowTask</parent>
+            <properties>
+            </properties>
+        </type>        
+        
+        <!-- Rework form -->
+        <type name="wf1:rework">
+            <parent>bpm:workflowTask</parent>
+            <properties>
+            </properties>
+        </type>        
+
+        <!-- Decide rework form -->
+        <type name="wf1:decide_rework">
+            <parent>bpm:workflowTask</parent>
+            <properties>
+            </properties>
+        </type>        
+
+        <!-- Fill legal data form -->
+        <type name="wf1:fill_legal_data">
+            <parent>bpm:workflowTask</parent>
+            <properties>
+            </properties>
+        </type>        
+
+        <!-- Approve legal data form -->
+        <type name="wf1:approve_legal_data">
+            <parent>bpm:workflowTask</parent>
+            <properties>
+            </properties>
+        </type>  
+      
+        <!-- CEO Approve data form -->
+        <type name="wf1:ceo_approve">
+            <parent>bpm:workflowTask</parent>
+            <properties>
+            </properties>
+        </type>  
+        
+        <!-- Upload signed document form -->
+        <type name="wf1:upload_document">
+            <parent>bpm:workflowTask</parent>
+            <properties>
+            </properties>
+        </type>  
+
+    </types>
+
+</model>
