@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/test">
   <process id="wf1" name="Workflow 1" isExecutable="true">
+    <documentation>A test workflow</documentation>
     <serviceTask id="create_folders" name="Create folders" activiti:class="org.alfresco.repo.workflow.activiti.script.AlfrescoScriptDelegate">
       <extensionElements>
         <activiti:field name="script">
@@ -16,38 +17,50 @@ logger.log("Creating folders...");]]></activiti:string>
     <sequenceFlow id="flow4" sourceRef="create_folders" targetRef="fill_data"></sequenceFlow>
     <userTask id="approve" name="Approve opportunity" activiti:candidateGroups="ALFRESCO_ADMINISTRATORS" activiti:formKey="wf1:approve"></userTask>
     <sequenceFlow id="flow5" sourceRef="fill_data" targetRef="approve"></sequenceFlow>
-    <exclusiveGateway id="approve_gw" name="Approve?" default="yes_approve"></exclusiveGateway>
+    <exclusiveGateway id="approve_gw" name="Approve?" default="not_approved"></exclusiveGateway>
     <sequenceFlow id="flow6" sourceRef="approve" targetRef="approve_gw"></sequenceFlow>
     <userTask id="approve_legal" name="Legal approve opportunity" activiti:candidateGroups="ALFRESCO_ADMINISTRATORS" activiti:formKey="wf1:approve_legal"></userTask>
-    <sequenceFlow id="yes_approve" name="yes" sourceRef="approve_gw" targetRef="approve_legal"></sequenceFlow>
-    <exclusiveGateway id="legal_approve_gw" name="Legal Approve" default="no_legal_approve"></exclusiveGateway>
+    <sequenceFlow id="yes_approved" name="yes" sourceRef="approve_gw" targetRef="approve_legal">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${approved=="yes"}]]></conditionExpression>
+    </sequenceFlow>
+    <exclusiveGateway id="legal_approve_gw" name="Legal Approve" default="not_legally_approved"></exclusiveGateway>
     <sequenceFlow id="flow8" sourceRef="approve_legal" targetRef="legal_approve_gw"></sequenceFlow>
-    <sequenceFlow id="no_approve" name="no" sourceRef="approve_gw" targetRef="fill_data"></sequenceFlow>
+    <sequenceFlow id="not_approved" name="no" sourceRef="approve_gw" targetRef="fill_data"></sequenceFlow>
     <userTask id="rework_agreement" name="Rework agreement" activiti:candidateGroups="ALFRESCO_ADMINISTRATORS" activiti:formKey="wf1:rework"></userTask>
-    <sequenceFlow id="no_legal_approve" name="no" sourceRef="legal_approve_gw" targetRef="rework_agreement"></sequenceFlow>
+    <sequenceFlow id="not_legally_approved" name="no" sourceRef="legal_approve_gw" targetRef="rework_agreement"></sequenceFlow>
     <sequenceFlow id="flow11" sourceRef="rework_agreement" targetRef="approve_legal"></sequenceFlow>
     <userTask id="fill_legal_data" name="Fill legal data" activiti:candidateGroups="ALFRESCO_ADMINISTRATORS" activiti:formKey="wf1:fill_legal_data"></userTask>
     <userTask id="approve_legal_manager" name="Approve legal manager" activiti:candidateGroups="ALFRESCO_ADMINISTRATORS" activiti:formKey="wf1:approve_legal_data"></userTask>
     <sequenceFlow id="flow13" sourceRef="fill_legal_data" targetRef="approve_legal_manager"></sequenceFlow>
-    <sequenceFlow id="yes_legal_approve" name="yes" sourceRef="legal_approve_gw" targetRef="fill_legal_data"></sequenceFlow>
-    <exclusiveGateway id="approve_legal_manager_gw" name="Legal Manager Approve?" default="no_approve_legal_manager"></exclusiveGateway>
+    <sequenceFlow id="yes_legally_approved" name="yes" sourceRef="legal_approve_gw" targetRef="fill_legal_data">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${legally_approved=="yes"}]]></conditionExpression>
+    </sequenceFlow>
+    <exclusiveGateway id="approve_legal_manager_gw" name="Legal Manager Approve?" default="not_legal_manager_approved"></exclusiveGateway>
     <sequenceFlow id="flow14" sourceRef="approve_legal_manager" targetRef="approve_legal_manager_gw"></sequenceFlow>
     <userTask id="ceo_approve" name="CEO Approve" activiti:candidateGroups="ALFRESCO_ADMINISTRATORS" activiti:formKey="wf1:ceo_approve"></userTask>
-    <sequenceFlow id="yes_approve_legal_manager" name="yes" sourceRef="approve_legal_manager_gw" targetRef="ceo_approve"></sequenceFlow>
+    <sequenceFlow id="yes_legal_manager_approved" name="yes" sourceRef="approve_legal_manager_gw" targetRef="ceo_approve">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${legal_manager_approved == "yes"}]]></conditionExpression>
+    </sequenceFlow>
     <userTask id="decide_rework" name="Decide rework" activiti:candidateGroups="ALFRESCO_ADMINISTRATORS" activiti:formKey="wf1:decide_rework"></userTask>
-    <sequenceFlow id="no_approve_legal_manager" name="no" sourceRef="approve_legal_manager_gw" targetRef="decide_rework"></sequenceFlow>
+    <sequenceFlow id="not_legal_manager_approved" name="no" sourceRef="approve_legal_manager_gw" targetRef="decide_rework"></sequenceFlow>
     <endEvent id="aborted" name="Abort"></endEvent>
     <exclusiveGateway id="decice_rework_gw" name="Rework?" default="yes_rework"></exclusiveGateway>
     <sequenceFlow id="flow15" sourceRef="decide_rework" targetRef="decice_rework_gw"></sequenceFlow>
     <sequenceFlow id="yes_rework" name="yes" sourceRef="decice_rework_gw" targetRef="fill_data"></sequenceFlow>
-    <sequenceFlow id="no_rework" name="no" sourceRef="decice_rework_gw" targetRef="aborted"></sequenceFlow>
-    <exclusiveGateway id="ceo_approve_gw" name="CEO Approve?" default="no_ceo_approve"></exclusiveGateway>
+    <sequenceFlow id="no_rework" name="no" sourceRef="decice_rework_gw" targetRef="aborted">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${rework=="no"}]]></conditionExpression>
+    </sequenceFlow>
+    <exclusiveGateway id="ceo_approve_gw" name="CEO Approve?" default="not_ceo_approved"></exclusiveGateway>
     <sequenceFlow id="flow16" sourceRef="ceo_approve" targetRef="ceo_approve_gw"></sequenceFlow>
-    <sequenceFlow id="no_ceo_approve" name="no" sourceRef="ceo_approve_gw" targetRef="decide_rework"></sequenceFlow>
+    <sequenceFlow id="not_ceo_approved" name="no" sourceRef="ceo_approve_gw" targetRef="decide_rework"></sequenceFlow>
     <userTask id="upload_signed_document" name="Upload signed document" activiti:candidateGroups="ALFRESCO_ADMINISTRATORS" activiti:formKey="wf1:upload_document"></userTask>
-    <sequenceFlow id="yes_ceo_approve" name="yes" sourceRef="ceo_approve_gw" targetRef="upload_signed_document"></sequenceFlow>
+    <sequenceFlow id="yes_ceo_approved" name="yes" sourceRef="ceo_approve_gw" targetRef="upload_signed_document">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${ceo_approved == "yes"}]]></conditionExpression>
+    </sequenceFlow>
     <endEvent id="accepted" name="Accepted"></endEvent>
     <sequenceFlow id="flow18" sourceRef="upload_signed_document" targetRef="accepted"></sequenceFlow>
+    <startEvent id="start" name="Start" activiti:formKey="wf1:start"></startEvent>
+    <sequenceFlow id="flow19" sourceRef="start" targetRef="create_folders"></sequenceFlow>
     <textAnnotation id="text_aborted">
       <text>Aborted</text>
     </textAnnotation>
@@ -110,6 +123,9 @@ logger.log("Creating folders...");]]></activiti:string>
       <bpmndi:BPMNShape bpmnElement="accepted" id="BPMNShape_accepted">
         <omgdc:Bounds height="35.0" width="35.0" x="800.0" y="460.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="start" id="BPMNShape_start">
+        <omgdc:Bounds height="35.0" width="35.0" x="179.0" y="120.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="text_aborted" id="BPMNShape_text_aborted">
         <omgdc:Bounds height="50.0" width="100.0" x="347.0" y="343.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
@@ -128,7 +144,7 @@ logger.log("Creating folders...");]]></activiti:string>
         <omgdi:waypoint x="695.0" y="137.0"></omgdi:waypoint>
         <omgdi:waypoint x="740.0" y="138.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="yes_approve" id="BPMNEdge_yes_approve">
+      <bpmndi:BPMNEdge bpmnElement="yes_approved" id="BPMNEdge_yes_approved">
         <omgdi:waypoint x="780.0" y="138.0"></omgdi:waypoint>
         <omgdi:waypoint x="825.0" y="138.0"></omgdi:waypoint>
         <bpmndi:BPMNLabel>
@@ -139,7 +155,7 @@ logger.log("Creating folders...");]]></activiti:string>
         <omgdi:waypoint x="930.0" y="138.0"></omgdi:waypoint>
         <omgdi:waypoint x="975.0" y="139.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="no_approve" id="BPMNEdge_no_approve">
+      <bpmndi:BPMNEdge bpmnElement="not_approved" id="BPMNEdge_not_approved">
         <omgdi:waypoint x="760.0" y="118.0"></omgdi:waypoint>
         <omgdi:waypoint x="759.0" y="62.0"></omgdi:waypoint>
         <omgdi:waypoint x="480.0" y="62.0"></omgdi:waypoint>
@@ -148,7 +164,7 @@ logger.log("Creating folders...");]]></activiti:string>
           <omgdc:Bounds height="12.0" width="12.0" x="761.0" y="100.0"></omgdc:Bounds>
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="no_legal_approve" id="BPMNEdge_no_legal_approve">
+      <bpmndi:BPMNEdge bpmnElement="not_legally_approved" id="BPMNEdge_not_legally_approved">
         <omgdi:waypoint x="1015.0" y="139.0"></omgdi:waypoint>
         <omgdi:waypoint x="1060.0" y="139.0"></omgdi:waypoint>
         <bpmndi:BPMNLabel>
@@ -165,7 +181,7 @@ logger.log("Creating folders...");]]></activiti:string>
         <omgdi:waypoint x="943.0" y="248.0"></omgdi:waypoint>
         <omgdi:waypoint x="875.0" y="248.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="yes_legal_approve" id="BPMNEdge_yes_legal_approve">
+      <bpmndi:BPMNEdge bpmnElement="yes_legally_approved" id="BPMNEdge_yes_legally_approved">
         <omgdi:waypoint x="995.0" y="159.0"></omgdi:waypoint>
         <omgdi:waypoint x="995.0" y="221.0"></omgdi:waypoint>
         <bpmndi:BPMNLabel>
@@ -176,14 +192,14 @@ logger.log("Creating folders...");]]></activiti:string>
         <omgdi:waypoint x="770.0" y="248.0"></omgdi:waypoint>
         <omgdi:waypoint x="726.0" y="248.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="yes_approve_legal_manager" id="BPMNEdge_yes_approve_legal_manager">
+      <bpmndi:BPMNEdge bpmnElement="yes_legal_manager_approved" id="BPMNEdge_yes_legal_manager_approved">
         <omgdi:waypoint x="706.0" y="268.0"></omgdi:waypoint>
         <omgdi:waypoint x="706.0" y="330.0"></omgdi:waypoint>
         <bpmndi:BPMNLabel>
           <omgdc:Bounds height="12.0" width="18.0" x="716.0" y="268.0"></omgdc:Bounds>
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="no_approve_legal_manager" id="BPMNEdge_no_approve_legal_manager">
+      <bpmndi:BPMNEdge bpmnElement="not_legal_manager_approved" id="BPMNEdge_not_legal_manager_approved">
         <omgdi:waypoint x="686.0" y="248.0"></omgdi:waypoint>
         <omgdi:waypoint x="635.0" y="248.0"></omgdi:waypoint>
         <bpmndi:BPMNLabel>
@@ -212,14 +228,14 @@ logger.log("Creating folders...");]]></activiti:string>
         <omgdi:waypoint x="654.0" y="357.0"></omgdi:waypoint>
         <omgdi:waypoint x="602.0" y="357.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="no_ceo_approve" id="BPMNEdge_no_ceo_approve">
+      <bpmndi:BPMNEdge bpmnElement="not_ceo_approved" id="BPMNEdge_not_ceo_approved">
         <omgdi:waypoint x="582.0" y="337.0"></omgdi:waypoint>
         <omgdi:waypoint x="582.0" y="276.0"></omgdi:waypoint>
         <bpmndi:BPMNLabel>
           <omgdc:Bounds height="12.0" width="12.0" x="562.0" y="312.0"></omgdc:Bounds>
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="yes_ceo_approve" id="BPMNEdge_yes_ceo_approve">
+      <bpmndi:BPMNEdge bpmnElement="yes_ceo_approved" id="BPMNEdge_yes_ceo_approved">
         <omgdi:waypoint x="582.0" y="377.0"></omgdi:waypoint>
         <omgdi:waypoint x="582.0" y="450.0"></omgdi:waypoint>
         <bpmndi:BPMNLabel>
@@ -229,6 +245,10 @@ logger.log("Creating folders...");]]></activiti:string>
       <bpmndi:BPMNEdge bpmnElement="flow18" id="BPMNEdge_flow18">
         <omgdi:waypoint x="635.0" y="477.0"></omgdi:waypoint>
         <omgdi:waypoint x="800.0" y="477.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow19" id="BPMNEdge_flow19">
+        <omgdi:waypoint x="214.0" y="137.0"></omgdi:waypoint>
+        <omgdi:waypoint x="280.0" y="137.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="association2" id="BPMNEdge_association2">
         <omgdi:waypoint x="874.0" y="478.0"></omgdi:waypoint>
