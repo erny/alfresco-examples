@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>erny.alf</groupId>
     <artifactId>wf1-repo</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>0.1-SNAPSHOT</version>
     <name>wf1-repo AMP project</name>
     <packaging>amp</packaging>
     <description>Manages the lifecycle of the wf1-repo AMP (Alfresco Module Package)</description>
