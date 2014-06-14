@@ -60,6 +60,11 @@
          <scope>provided</scope> is inherited for each of the following; 
          for more info, please refer to alfresco-platform-distribution POM -->
     <dependencies>
+        <dependency>
+            <groupId>org.sharextras</groupId>
+            <artifactId>javascript-console-share</artifactId>
+            <version>0.6.0</version>
+        </dependency>
         <!-- Test dependencies -->
         <dependency>
             <groupId>junit</groupId>
