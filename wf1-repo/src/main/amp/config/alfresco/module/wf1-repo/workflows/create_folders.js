@@ -9,8 +9,6 @@
 var country = "Spain";
 var opportunity = "101-Opportunity 1";
 
-
-
 // Some folder data
 var base = "Processes Gestamp Solar";
 

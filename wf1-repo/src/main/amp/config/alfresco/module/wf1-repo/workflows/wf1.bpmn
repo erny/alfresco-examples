@@ -2,17 +2,16 @@
 <definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/test">
   <process id="wf1" name="Workflow 1" isExecutable="true">
     <documentation>A test workflow</documentation>
-    <serviceTask id="create_folders" name="Create folders" activiti:class="org.alfresco.repo.workflow.activiti.script.AlfrescoScriptDelegate">
       <extensionElements>
-        <activiti:field name="script">
-          <activiti:string><![CDATA[/* Create folder structure */
+        <activiti:executionListener event="start" class="org.alfresco.repo.workflow.activiti.listener.ScriptExecutionListener">
+          <activiti:field name="script">
+             <activiti:string>
+/* Create folder structure */
 /*jslint rhino: true, indent: 4 */
-/*globals companyhome, logger */
+/*globals companyhome, logger, execution */
 
-// Test data
-var country = "Spain";	
-var opportunity = "101-Opportunity 1";
-
+var country = wf1_country;
+var opportunity = wf1_opportunityName;
 
 // Some folder data
 var base = "Processes Gestamp Solar";
@@ -41,11 +40,7 @@ var folder_structure = {
     ]
 };
 
-
-
-
-
-logger.log("Creating folders structure for project: ");
+logger.log("Creating folders structure for project: " +  opportunity);
 
 function get_or_create(alf_folder, folder) {
   /* alf_folder: alfresco folder where to create subfolders
@@ -99,15 +94,15 @@ basefolder[base] = countryfolder;
 var rootfolder = companyhome;
 create_folders(rootfolder, basefolder);
 var alf_folder = rootfolder.childByNamePath(base).childByNamePath(country).childByNamePath(opportunity);
-create_folders(alf_folder, folder_structure);]]></activiti:string>
-        </activiti:field>
-        <activiti:field name="runAs">
-          <activiti:string><![CDATA[admin]]></activiti:string>
-        </activiti:field>
-      </extensionElements>
-    </serviceTask>
+create_folders(alf_folder, folder_structure);
+             </activiti:string>
+          </activiti:field>
+          <activiti:field name="runAs">
+            <activiti:string>admin</activiti:string>
+          </activiti:field>
+        </activiti:executionListener>
+    </extensionElements>
     <userTask id="fill_data" name="Fill opportunity data" activiti:assignee="${initiator.properties.userName}" activiti:formKey="wf1:fill_data"></userTask>
-    <sequenceFlow id="flow4" sourceRef="create_folders" targetRef="fill_data"></sequenceFlow>
     <userTask id="approve" name="Approve opportunity" activiti:candidateGroups="ALFRESCO_ADMINISTRATORS" activiti:formKey="wf1:approve"></userTask>
     <sequenceFlow id="flow5" sourceRef="fill_data" targetRef="approve"></sequenceFlow>
     <exclusiveGateway id="approve_gw" name="Approve?" default="not_approved"></exclusiveGateway>
@@ -153,7 +148,7 @@ create_folders(alf_folder, folder_structure);]]></activiti:string>
     <endEvent id="accepted" name="Accepted"></endEvent>
     <sequenceFlow id="flow18" sourceRef="upload_signed_document" targetRef="accepted"></sequenceFlow>
     <startEvent id="start" name="Start" activiti:formKey="wf1:start"></startEvent>
-    <sequenceFlow id="flow19" sourceRef="start" targetRef="create_folders"></sequenceFlow>
+    <sequenceFlow id="flow19" sourceRef="start" targetRef="fill_data"></sequenceFlow>
     <textAnnotation id="text_aborted">
       <text>Aborted</text>
     </textAnnotation>
@@ -165,9 +160,6 @@ create_folders(alf_folder, folder_structure);]]></activiti:string>
   </process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_wf1">
     <bpmndi:BPMNPlane bpmnElement="wf1" id="BPMNPlane_wf1">
-      <bpmndi:BPMNShape bpmnElement="create_folders" id="BPMNShape_create_folders">
-        <omgdc:Bounds height="55.0" width="105.0" x="130.0" y="80.0"></omgdc:Bounds>
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="fill_data" id="BPMNShape_fill_data">
         <omgdc:Bounds height="55.0" width="105.0" x="278.0" y="80.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
@@ -225,10 +217,6 @@ create_folders(alf_folder, folder_structure);]]></activiti:string>
       <bpmndi:BPMNShape bpmnElement="textannotation1" id="BPMNShape_textannotation1">
         <omgdc:Bounds height="50.0" width="100.0" x="724.0" y="423.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge bpmnElement="flow4" id="BPMNEdge_flow4">
-        <omgdi:waypoint x="235.0" y="107.0"></omgdi:waypoint>
-        <omgdi:waypoint x="278.0" y="107.0"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow5" id="BPMNEdge_flow5">
         <omgdi:waypoint x="383.0" y="107.0"></omgdi:waypoint>
         <omgdi:waypoint x="440.0" y="107.0"></omgdi:waypoint>
